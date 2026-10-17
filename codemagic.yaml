@@ -1,0 +1,28 @@
+workflows:
+  ios-simulator-preview:
+    name: iOS Simulator Preview
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+    scripts:
+      - name: Resolve Swift packages
+        script: |
+          xcodebuild -resolvePackageDependencies \
+            -project "$CM_BUILD_DIR/RashidiIOS.xcodeproj" \
+            -scheme RashidiIOS
+      - name: Build for iOS Simulator
+        script: |
+          xcodebuild build \
+            -project "$CM_BUILD_DIR/RashidiIOS.xcodeproj" \
+            -scheme RashidiIOS \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            -derivedDataPath "$CM_BUILD_DIR/build" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+    artifacts:
+      - $CM_BUILD_DIR/build/Build/Products/Debug-iphonesimulator/RashidiIOS.app
+      - /tmp/xcodebuild_logs/*.log
